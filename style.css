@@ -33,7 +33,7 @@ body::after {
      아래 값은 '위쪽 중간 부분'을 위한 기본 값
   */
   clip-path: inset(
-    0% 20% 80% 0%
+    0% 20% 50% 0%
   ); /* ← 여기 숫자만 조절하면 네모 위치/크기 바뀜 위,오른,아래,왼 */
 
   pointer-events: none;
@@ -133,4 +133,5 @@ body::after + svg {
   bottom: 20px;
   width: 200px;
 }
+
 
