@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kitty</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div class="poster">
+      <img src="fish1.png" class="fish" />
+      <img src="fish2.png" class="fish" />
+      <img src="fish3.png" class="fish" />
+      <img src="fish4.png" class="fish" />
+      <img src="fish5.png" class="fish" />
+      <img src="fish6.png" class="fish" />
+      <img src="fish7.png" class="fish" />
+      <img src="fish8.png" class="fish" />
+      <img src="fish9.png" class="fish" />
+
+      <img src="fish1.png" class="fish" />
+      <img src="fish2.png" class="fish" />
+      <img src="fish3.png" class="fish" />
+      <img src="fish4.png" class="fish" />
+      <img src="fish5.png" class="fish" />
+      <img src="fish6.png" class="fish" />
+      <img src="fish7.png" class="fish" />
+      <img src="fish8.png" class="fish" />
+      <img src="fish9.png" class="fish" />
+
+      <img src="fish1.png" class="fish" />
+      <img src="fish2.png" class="fish" />
+      <img src="fish3.png" class="fish" />
+      <img src="fish4.png" class="fish" />
+      <img src="fish5.png" class="fish" />
+      <img src="fish6.png" class="fish" />
+      <img src="fish7.png" class="fish" />
+      <img src="fish8.png" class="fish" />
+      <img src="fish9.png" class="fish" />
+
+      <img src="fish1.png" class="fish" />
+      <img src="fish2.png" class="fish" />
+      <img src="fish3.png" class="fish" />
+      <img src="fish4.png" class="fish" />
+      <img src="fish5.png" class="fish" />
+      <img src="fish6.png" class="fish" />
+      <img src="fish7.png" class="fish" />
+      <img src="fish8.png" class="fish" />
+      <img src="fish9.png" class="fish" />
+
+      <img src="fish1.png" class="fish" />
+      <img src="fish2.png" class="fish" />
+      <img src="fish3.png" class="fish" />
+      <img src="fish4.png" class="fish" />
+      <img src="fish5.png" class="fish" />
+      <img src="fish6.png" class="fish" />
+      <img src="fish7.png" class="fish" />
+      <img src="fish8.png" class="fish" />
+      <img src="fish9.png" class="fish" />
+
+      <img src="fish1.png" class="fish" />
+      <img src="fish2.png" class="fish" />
+      <img src="fish3.png" class="fish" />
+      <img src="fish4.png" class="fish" />
+      <img src="fish5.png" class="fish" />
+      <img src="fish6.png" class="fish" />
+      <img src="fish7.png" class="fish" />
+      <img src="fish8.png" class="fish" />
+      <img src="fish9.png" class="fish" />
+
+      <img src="kitty.png" class="kitty" />
+
+      <img src="w1.png" class="whale" />
+      <img src="w2.png" class="whale" />
+      <img src="w3.png" class="whale" />
+    </div>
+    <img src="introduce.png" class="intro" />
+
+    <!-- 물결 효과 필터 -->
+    <svg width="0" height="0">
+      <filter id="waterWave">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.015"
+          numOctaves="2"
+          seed="3"
+        >
+          <animate
+            attributeName="baseFrequency"
+            dur="15s"
+            values="0.015;0.02;0.015"
+            repeatCount="indefinite"
+          />
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" scale="25" />
+      </filter>
+    </svg>
+
+    <script>
+      const fishes = document.querySelectorAll(".fish");
+      const kitty = document.querySelector(".kitty");
+      const whales = document.querySelectorAll(".whale");
+
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      // 각 객체 상태 저장용
+      const sprites = [];
+
+      // 마우스 위치
+      let mouseX = null;
+      let mouseY = null;
+
+      window.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      function initSprites() {
+        const elements = [...fishes, ...whales];
+        if (kitty) elements.push(kitty);
+
+        elements.forEach((el) => {
+          const isKitty = el.classList.contains("kitty");
+
+          // 기본 크기 (이미지 로드 전 대비용)
+          let w = el.offsetWidth || (isKitty ? 200 : 150);
+          let h = el.offsetHeight || (isKitty ? 200 : 150);
+
+          const padding = 20;
+
+          const maxX = window.innerWidth - w - padding;
+          const maxY = window.innerHeight - h - padding;
+
+          const x = random(padding, maxX);
+          const y = random(padding, maxY);
+
+          // ✅ baseSpeed로 이름 통일
+          const baseSpeed = isKitty ? random(1.5, 3) : random(0.7, 2.2);
+          const angle = Math.random() * Math.PI * 2;
+          const vx = Math.cos(angle) * baseSpeed;
+          const vy = Math.sin(angle) * baseSpeed;
+
+          sprites.push({
+            el,
+            isKitty,
+            x,
+            y,
+            w,
+            h,
+            vx,
+            vy,
+            baseSpeed, // ✅ 여기서 프로퍼티로 저장
+          });
+
+          el.style.visibility = "visible";
+        });
+      }
+
+      function updateSprites() {
+        const padding = 20;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        sprites.forEach((s) => {
+          // 마우스 피하기 힘 조절
+          if (mouseX !== null && mouseY !== null) {
+            const centerX = s.x + s.w / 2;
+            const centerY = s.y + s.h / 2;
+
+            const dx = centerX - mouseX;
+            const dy = centerY - mouseY;
+            const dist = Math.hypot(dx, dy);
+
+            const threshold = s.isKitty ? 600 : 500; // 영향 범위
+            if (dist > 0 && dist < threshold) {
+              const nx = dx / dist;
+              const ny = dy / dist;
+              const factor = (threshold - dist) / threshold; // 가까울수록 강하게
+
+              const avoidStrength = s.isKitty ? 4.5 : 4.0;
+              s.vx += nx * avoidStrength * factor;
+              s.vy += ny * avoidStrength * factor;
+            }
+          }
+
+          // 속도 제한
+          const maxSpeed = s.isKitty ? 7.2 : 3.2;
+          let speed = Math.hypot(s.vx, s.vy);
+          if (speed > maxSpeed) {
+            s.vx = (s.vx / speed) * maxSpeed;
+            s.vy = (s.vy / speed) * maxSpeed;
+          }
+
+          // 위치 업데이트
+          s.x += s.vx;
+          s.y += s.vy;
+
+          const maxX = width - s.w - padding;
+          const maxY = height - s.h - padding;
+
+          // 벽 충돌 체크 (통! 하고 튕기기)
+          if (s.x <= padding) {
+            s.x = padding;
+            s.vx = Math.abs(s.vx);
+          } else if (s.x >= maxX) {
+            s.x = maxX;
+            s.vx = -Math.abs(s.vx);
+          }
+
+          if (s.y <= padding) {
+            s.y = padding;
+            s.vy = Math.abs(s.vy);
+          } else if (s.y >= maxY) {
+            s.y = maxY;
+            s.vy = -Math.abs(s.vy);
+          }
+
+          // 💡 마우스에서 멀어지면 원래 baseSpeed로 서서히 회복
+          const currentSpeed = Math.hypot(s.vx, s.vy);
+          const desiredSpeed = s.baseSpeed;
+          const speedDiff = desiredSpeed - currentSpeed;
+
+          if (currentSpeed > 0) {
+            s.vx += (s.vx / currentSpeed) * speedDiff * 0.02;
+            s.vy += (s.vy / currentSpeed) * speedDiff * 0.02;
+          }
+
+          // 방향에 따라 좌우 반전
+          const goingRight = s.vx > 0;
+          const flip = goingRight ? "rotateY(180deg)" : "rotateY(0deg)";
+          s.el.style.transform = `translate(${s.x}px, ${s.y}px) ${flip}`;
+        });
+
+        requestAnimationFrame(updateSprites);
+      }
+
+      window.addEventListener("load", () => {
+        initSprites();
+        requestAnimationFrame(updateSprites);
+      });
+
+      // 창 크기 변경 시, 다음 프레임에서 자연스럽게 새 범위에 맞게 튕기도록 처리
+      window.addEventListener("resize", () => {
+        sprites.forEach((s) => {
+          const padding = 20;
+          const maxX = window.innerWidth - s.w - padding;
+          const maxY = window.innerHeight - s.h - padding;
+          if (s.x > maxX) s.x = maxX;
+          if (s.y > maxY) s.y = maxY;
+        });
+      });
+    </script>
+  </body>
+</html>

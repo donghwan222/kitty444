@@ -1,0 +1,135 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* 전체 화면 배경 */
+body {
+  background-image: url("/back4.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  overflow: hidden;
+  position: relative; /* ::after 올릴 준비 */
+}
+
+/* ⭐ 위 중간 부분만 일렁이게 하는 가상 레이어 */
+body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: inherit; /* 같은 배경 그대로 사용 */
+  background-position: inherit;
+  background-size: inherit;
+
+  filter: url(#waterWave); /* 물결 필터 적용 */
+
+  /* ⭐ 일렁이는 영역을 잘라내기 (조절 가능) */
+  /*
+     화면 기준 clip-path 인셋:
+     inset(top  right  bottom  left)
+     아래 값은 '위쪽 중간 부분'을 위한 기본 값
+  */
+  clip-path: inset(
+    0% 20% 80% 0%
+  ); /* ← 여기 숫자만 조절하면 네모 위치/크기 바뀜 위,오른,아래,왼 */
+
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* SVG 필터 정의 */
+body::after + svg {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* --------------------------------------------------- */
+/* 🌊🐟 자유롭게 돌아다니는 물고기/헬로키티 애니메이션 */
+/* --------------------------------------------------- */
+
+.fish {
+  position: absolute;
+  width: 70px; /* 필요하면 크기 조절 */
+  pointer-events: none;
+  animation-duration: 20s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  z-index: 5;
+  visibility: hidden;
+  transform-origin: center center;
+
+  --dx: 0px;
+  --dy: 0px;
+}
+.kitty {
+  position: absolute;
+  width: 500px; /* 필요하면 크기 조절 */
+  pointer-events: none;
+  animation-duration: 20s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  z-index: 5;
+  visibility: hidden;
+  transform-origin: center center;
+
+  --dx: 0px;
+  --dy: 0px;
+}
+
+.whale {
+  position: absolute;
+  width: 170px; /* 필요하면 크기 조절 */
+  pointer-events: none;
+  animation-duration: 20s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  z-index: 5;
+  visibility: hidden;
+  transform-origin: center center;
+
+  --dx: 0px;
+  --dy: 0px;
+}
+
+/* 왼→오 이동 */
+@keyframes swim-right {
+  0% {
+    transform: translateX(0vw) translateY(var(--start-y))
+      translate(var(--dx), var(--dy)) scaleX(-1);
+  }
+  50% {
+    transform: translateX(50vw) translateY(var(--mid-y))
+      translate(var(--dx), var(--dy)) scaleX(-1);
+  }
+  100% {
+    transform: translateX(100vw) translateY(var(--end-y))
+      translate(var(--dx), var(--dy)) scaleX(-1);
+  }
+}
+
+/* 오른→왼 이동 (뒤집힌 물고기) */
+@keyframes swim-left {
+  0% {
+    transform: translateX(100vw) translateY(var(--start-y))
+      translate(var(--dx), var(--dy));
+  }
+  50% {
+    transform: translateX(50vw) translateY(var(--mid-y))
+      translate(var(--dx), var(--dy));
+  }
+  100% {
+    transform: translateX(0vw) translateY(var(--end-y))
+      translate(var(--dx), var(--dy));
+  }
+}
+
+.intro {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: 200px;
+}
