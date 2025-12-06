@@ -117,50 +117,53 @@
         mouseY = e.clientY;
       });
 
-      function initSprites() {
-        const elements = [...fishes, ...whales];
-        if (kitty) elements.push(kitty);
+function initSprites() {
+  const elements = [...fishes, ...whales];
+  if (kitty) elements.push(kitty);
 
-        elements.forEach((el) => {
-          const isKitty = el.classList.contains("kitty");
+  elements.forEach((el) => {
+    const isKitty = el.classList.contains("kitty");
 
-          // 기본 크기 (이미지 로드 전 대비용)
-          let w = el.offsetWidth || (isKitty ? 200 : 150);
-          let h = el.offsetHeight || (isKitty ? 200 : 150);
+    let w = el.offsetWidth || (isKitty ? 200 : 150);
+    let h = el.offsetHeight || (isKitty ? 200 : 150);
 
-          const padding = 3;
+    // ✅ 화면 안에서 여백 설정
+    const paddingX = 20;  // 좌우 조금만 띄우고
+    const paddingTop = 0; // 위쪽 완전 붙게 허용
+    const paddingBottom = 0; // 아래도 완전 허용
 
-          const maxX = window.innerWidth - w - padding;
-          const maxY = window.innerHeight - h - padding;
+    const maxX = window.innerWidth - w - paddingX;
+    const maxY = window.innerHeight - h - paddingBottom;
 
-          const x = random(padding, maxX);
-          const y = random(padding, maxY);
+    const x = random(paddingX, maxX);
+    const y = random(paddingTop, maxY); // ✅ 위~아래 전부 랜덤
 
-          // ✅ baseSpeed로 이름 통일
-          const baseSpeed = isKitty ? random(1.5, 3) : random(0.7, 2.2);
-          const angle = Math.random() * Math.PI * 2;
-          const vx = Math.cos(angle) * baseSpeed;
-          const vy = Math.sin(angle) * baseSpeed;
+    const baseSpeed = isKitty ? random(1.5, 3) : random(0.7, 2.2);
+    const angle = Math.random() * Math.PI * 2;
+    const vx = Math.cos(angle) * baseSpeed;
+    const vy = Math.sin(angle) * baseSpeed;
 
-          sprites.push({
-            el,
-            isKitty,
-            x,
-            y,
-            w,
-            h,
-            vx,
-            vy,
-            baseSpeed, // ✅ 여기서 프로퍼티로 저장
-          });
+    sprites.push({
+      el,
+      isKitty,
+      x,
+      y,
+      w,
+      h,
+      vx,
+      vy,
+      baseSpeed,
+    });
 
-          el.style.visibility = "visible";
-        });
-      }
+    el.style.visibility = "visible";
+  });
+}
+
 
 function updateSprites() {
-  const paddingX = 20; // 좌우 여백
-  const paddingY = 0;  // 상하 여백
+  const paddingX = 20;   // 좌우 여백
+  const paddingTop = 0;  // 위쪽 여백 0 → 화면 맨 위까지 허용
+  const paddingBottom = 0; // 아래쪽도 0
 
   const width = window.innerWidth;
   const height = window.innerHeight;
@@ -200,9 +203,9 @@ function updateSprites() {
     s.y += s.vy;
 
     const maxX = width - s.w - paddingX;
-    const maxY = height - s.h - paddingY;
+    const maxY = height - s.h - paddingBottom;
 
-    // 벽 충돌 (좌우)
+    // 좌우 벽
     if (s.x <= paddingX) {
       s.x = paddingX;
       s.vx = Math.abs(s.vx);
@@ -211,16 +214,16 @@ function updateSprites() {
       s.vx = -Math.abs(s.vx);
     }
 
-    // 벽 충돌 (위아래)
-    if (s.y <= paddingY) {
-      s.y = paddingY;
+    // 위/아래 벽
+    if (s.y <= paddingTop) {
+      s.y = paddingTop;
       s.vy = Math.abs(s.vy);
     } else if (s.y >= maxY) {
       s.y = maxY;
       s.vy = -Math.abs(s.vy);
     }
 
-    // 원래 속도로 서서히 회복
+    // 원래 속도로 서서히 복귀
     const currentSpeed = Math.hypot(s.vx, s.vy);
     const desiredSpeed = s.baseSpeed;
     const speedDiff = desiredSpeed - currentSpeed;
@@ -230,7 +233,6 @@ function updateSprites() {
       s.vy += (s.vy / currentSpeed) * speedDiff * 0.02;
     }
 
-    // 방향에 따라 좌우 반전
     const goingRight = s.vx > 0;
     const flip = goingRight ? "rotateY(180deg)" : "rotateY(0deg)";
     s.el.style.transform = `translate(${s.x}px, ${s.y}px) ${flip}`;
@@ -239,25 +241,26 @@ function updateSprites() {
   requestAnimationFrame(updateSprites);
 }
 
+window.addEventListener("resize", () => {
+  const paddingX = 20;
+  const paddingTop = 0;
+  const paddingBottom = 0;
 
-      window.addEventListener("load", () => {
-        initSprites();
-        requestAnimationFrame(updateSprites);
-      });
+  sprites.forEach((s) => {
+    const maxX = window.innerWidth - s.w - paddingX;
+    const maxY = window.innerHeight - s.h - paddingBottom;
+    if (s.x > maxX) s.x = maxX;
+    if (s.y > maxY) s.y = maxY;
+    if (s.y < paddingTop) s.y = paddingTop;
+  });
+});
 
-      // 창 크기 변경 시, 다음 프레임에서 자연스럽게 새 범위에 맞게 튕기도록 처리
-      window.addEventListener("resize", () => {
-        sprites.forEach((s) => {
-          const padding = 20;
-          const maxX = window.innerWidth - s.w - padding;
-          const maxY = window.innerHeight - s.h - padding;
-          if (s.x > maxX) s.x = maxX;
-          if (s.y > maxY) s.y = maxY;
-        });
-      });
+
+
     </script>
   </body>
 </html>
+
 
 
 
