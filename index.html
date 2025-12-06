@@ -158,85 +158,87 @@
         });
       }
 
-      function updateSprites() {
-        const paddingX = 20;
-        const paddingY = 0;
-        
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+function updateSprites() {
+  const paddingX = 20; // 좌우 여백
+  const paddingY = 0;  // 상하 여백
 
-        sprites.forEach((s) => {
-          // 마우스 피하기 힘 조절
-          if (mouseX !== null && mouseY !== null) {
-            const centerX = s.x + s.w / 2;
-            const centerY = s.y + s.h / 2;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
-            const dx = centerX - mouseX;
-            const dy = centerY - mouseY;
-            const dist = Math.hypot(dx, dy);
+  sprites.forEach((s) => {
+    // 마우스 피하기
+    if (mouseX !== null && mouseY !== null) {
+      const centerX = s.x + s.w / 2;
+      const centerY = s.y + s.h / 2;
 
-            const threshold = s.isKitty ? 600 : 500; // 영향 범위
-            if (dist > 0 && dist < threshold) {
-              const nx = dx / dist;
-              const ny = dy / dist;
-              const factor = (threshold - dist) / threshold; // 가까울수록 강하게
+      const dx = centerX - mouseX;
+      const dy = centerY - mouseY;
+      const dist = Math.hypot(dx, dy);
 
-              const avoidStrength = s.isKitty ? 4.5 : 4.0;
-              s.vx += nx * avoidStrength * factor;
-              s.vy += ny * avoidStrength * factor;
-            }
-          }
+      const threshold = s.isKitty ? 600 : 500;
+      if (dist > 0 && dist < threshold) {
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const factor = (threshold - dist) / threshold;
 
-          // 속도 제한
-          const maxSpeed = s.isKitty ? 7.2 : 3.2;
-          let speed = Math.hypot(s.vx, s.vy);
-          if (speed > maxSpeed) {
-            s.vx = (s.vx / speed) * maxSpeed;
-            s.vy = (s.vy / speed) * maxSpeed;
-          }
-
-          // 위치 업데이트
-          s.x += s.vx;
-          s.y += s.vy;
-
-          const maxX = width - s.w - padding;
-          const maxY = height - s.h - padding;
-
-          // 벽 충돌 체크 (통! 하고 튕기기)
-          if (s.x <= padding) {
-            s.x = padding;
-            s.vx = Math.abs(s.vx);
-          } else if (s.x >= maxX) {
-            s.x = maxX;
-            s.vx = -Math.abs(s.vx);
-          }
-
-          if (s.y <= padding) {
-            s.y = padding;
-            s.vy = Math.abs(s.vy);
-          } else if (s.y >= maxY) {
-            s.y = maxY;
-            s.vy = -Math.abs(s.vy);
-          }
-
-          // 💡 마우스에서 멀어지면 원래 baseSpeed로 서서히 회복
-          const currentSpeed = Math.hypot(s.vx, s.vy);
-          const desiredSpeed = s.baseSpeed;
-          const speedDiff = desiredSpeed - currentSpeed;
-
-          if (currentSpeed > 0) {
-            s.vx += (s.vx / currentSpeed) * speedDiff * 0.02;
-            s.vy += (s.vy / currentSpeed) * speedDiff * 0.02;
-          }
-
-          // 방향에 따라 좌우 반전
-          const goingRight = s.vx > 0;
-          const flip = goingRight ? "rotateY(180deg)" : "rotateY(0deg)";
-          s.el.style.transform = `translate(${s.x}px, ${s.y}px) ${flip}`;
-        });
-
-        requestAnimationFrame(updateSprites);
+        const avoidStrength = s.isKitty ? 4.5 : 4.0;
+        s.vx += nx * avoidStrength * factor;
+        s.vy += ny * avoidStrength * factor;
       }
+    }
+
+    // 속도 제한
+    const maxSpeed = s.isKitty ? 7.2 : 3.2;
+    let speed = Math.hypot(s.vx, s.vy);
+    if (speed > maxSpeed) {
+      s.vx = (s.vx / speed) * maxSpeed;
+      s.vy = (s.vy / speed) * maxSpeed;
+    }
+
+    // 위치 업데이트
+    s.x += s.vx;
+    s.y += s.vy;
+
+    const maxX = width - s.w - paddingX;
+    const maxY = height - s.h - paddingY;
+
+    // 벽 충돌 (좌우)
+    if (s.x <= paddingX) {
+      s.x = paddingX;
+      s.vx = Math.abs(s.vx);
+    } else if (s.x >= maxX) {
+      s.x = maxX;
+      s.vx = -Math.abs(s.vx);
+    }
+
+    // 벽 충돌 (위아래)
+    if (s.y <= paddingY) {
+      s.y = paddingY;
+      s.vy = Math.abs(s.vy);
+    } else if (s.y >= maxY) {
+      s.y = maxY;
+      s.vy = -Math.abs(s.vy);
+    }
+
+    // 원래 속도로 서서히 회복
+    const currentSpeed = Math.hypot(s.vx, s.vy);
+    const desiredSpeed = s.baseSpeed;
+    const speedDiff = desiredSpeed - currentSpeed;
+
+    if (currentSpeed > 0) {
+      s.vx += (s.vx / currentSpeed) * speedDiff * 0.02;
+      s.vy += (s.vy / currentSpeed) * speedDiff * 0.02;
+    }
+
+    // 방향에 따라 좌우 반전
+    const goingRight = s.vx > 0;
+    const flip = goingRight ? "rotateY(180deg)" : "rotateY(0deg)";
+    s.el.style.transform = `translate(${s.x}px, ${s.y}px) ${flip}`;
+  });
+
+  requestAnimationFrame(updateSprites);
+}
+
 
       window.addEventListener("load", () => {
         initSprites();
@@ -256,5 +258,6 @@
     </script>
   </body>
 </html>
+
 
 
